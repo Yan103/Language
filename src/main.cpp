@@ -2,12 +2,18 @@
 
 #include "Tools.h"
 #include "BinaryTree.h"
+#include "Frontend.h"
 
-const char* INPUT_FILENAME = "../Language//Programs/test2.red";
+const char* INPUT_FILENAME = "../Language//Programs/test1.red";
 
 int main() {
-    FILE* file = fopen(INPUT_FILENAME, "r");
-    ReadFile(file);
+
+    Text* program_text = ReadTextFromProgramFile(INPUT_FILENAME);
+    Tokens* tokens = GetLexerTokens(program_text);
+
+    ProgramTextDtor(program_text);
+
+    TokensDtor(tokens);
 
     return 0;
 }
