@@ -1,5 +1,6 @@
 #include <sys/stat.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "Frontend.h"
 #include "BinaryTree.h"
@@ -83,6 +84,48 @@ void TokensDtor(Tokens* tokens) {
         FREE(tokens->lexems[i]);
     }
 
+    NameTableDtor(tokens->nametable);
     FREE(tokens->lexems);
     FREE(tokens);
+}
+
+Tokens* GetLexerTokens(Text* program_text) {
+    ASSERT(program_text != NULL, "NULL POINTER WAS PASSED!\n");
+
+    Tokens* tokens = TokensCtor();
+    char lexem[MAX_NAME_LENGTH] = "";
+    size_t  read_symbols = 0;
+
+    while (sscanf(program_text->text + program_text->offset, "%s%n", lexem, &read_symbols) != EOF) {
+        SHIFT(program_text, read_symbols);
+        lexem[ strcspn(lexem, "\n\t\r") ] = '\0';
+
+        if (IS_COMMENT(lexem)) {
+            size_t delta = strcspn(program_text->text + program_text->offset, "\n");
+            SHIFT(program_text, delta);
+            continue;
+        }
+
+        if (IS_USELESS(lexem)) {
+            size_t delta = strcspn(program_text->text + program_text->offset, " ");
+            SHIFT(program_text, delta);
+            continue;
+        }
+
+        printf("%s\n", lexem);
+    }
+
+    return tokens;
+}
+
+int CheckForUselessLexem(const char* lexem) {
+    ASSERT(lexem != NULL, "NULL POINTER WAS PASSED!\n");
+
+    for (size_t i = 0; i < USELESS_LEXEM_COUNT; i++) {
+        if (strcmp(lexem, USELESS_LEXEMS[i]) == 0) {
+            return 1;
+        }
+    }
+
+    return 0;
 }

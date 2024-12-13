@@ -311,8 +311,6 @@ FuncReturnCode ConnectChildWithParent(Node* node, NodeLocation location) {
 }
 
 static size_t GetFileLength(const char* filename) {
-    if (!filename) return NULL;
-
     struct stat st = {};
     stat(filename, &st);
 

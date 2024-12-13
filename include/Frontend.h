@@ -5,6 +5,11 @@
 
 #include "Tools.h"
 #include "BinaryTree.h"
+#include "LanguageSyntaxis.h"
+
+#define SHIFT(text, delta) { (text)->offset += delta; }
+#define IS_COMMENT(lexem)  *(lexem) == '/'
+#define IS_USELESS(lexem) CheckForUselessLexem(lexem)
 
 const size_t TOKENS_COUNT = 1024;
 
@@ -31,5 +36,7 @@ Tokens* TokensCtor();
 void TokensDtor(Tokens* tokens);
 
 Tokens* GetLexerTokens(Text* program_text);
+
+int CheckForUselessLexem(const char* lexem);
 
 #endif // FRONTEND_H
