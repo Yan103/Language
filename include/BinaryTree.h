@@ -13,7 +13,6 @@
 
 #include "Tools.h"
 #include "BinaryTree.h"
-#include "Operations.h"
 
 #define NULL_CHECK(pointer)                       \
 if (!pointer) {                                   \
@@ -38,10 +37,19 @@ enum FuncReturnCode {
     SYSCALL_ERROR         = -6,
 };
 
+enum NodeDataType {
+    NUMBER     = 0,
+    VARIABLE   = 1,
+    DECLARATOR = 2,
+    KEYWORD    = 3,
+    SEPARATOR  = 4,
+    OPERATOR   = 5,
+};
+
 struct NameTable {
     char*      names[NAMETABLE_SIZE];
     int*  parameters[NAMETABLE_SIZE];
-    size_t                free_names;
+    size_t                      free;
 };
 
 enum NodeLocation {

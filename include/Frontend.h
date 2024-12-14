@@ -9,7 +9,6 @@
 
 #define SHIFT(text, delta) { (text)->offset += delta; }
 #define IS_COMMENT(lexem)  *(lexem) == '/'
-#define IS_USELESS(lexem) CheckForUselessLexem(lexem)
 
 const size_t TOKENS_COUNT = 1024;
 
@@ -38,5 +37,21 @@ void TokensDtor(Tokens* tokens);
 Tokens* GetLexerTokens(Text* program_text);
 
 int CheckForUselessLexem(const char* lexem);
+
+int CheckForDeclarator(const char* lexem);
+
+int CheckForKeyWord(const char* lexem);
+
+int CheckForOperator(const char* lexem);
+
+int CheckForSeparator(const char* lexem);
+
+int CheckForNumber(const char* lexem);
+
+int CheckForVariable(const char* lexem);
+
+int TryFindInNameTable(const char* lexem, const NameTable* nametable);
+
+int UpdateInNameTable(const char* lexem, NameTable* nametable);
 
 #endif // FRONTEND_H

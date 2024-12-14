@@ -1,6 +1,7 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #include "Frontend.h"
 #include "BinaryTree.h"
@@ -106,13 +107,47 @@ Tokens* GetLexerTokens(Text* program_text) {
             continue;
         }
 
-        if (IS_USELESS(lexem)) {
+        if (CheckForUselessLexem(lexem)) {
             size_t delta = strcspn(program_text->text + program_text->offset, " ");
             SHIFT(program_text, delta);
             continue;
         }
 
-        printf("%s\n", lexem);
+        Node* node = NULL;
+        int index  = -1, var_index = -1;
+
+        if ((index = CheckForDeclarator(lexem)) != -1) {
+            switch (DECLARATORS[index].code) {
+                case FUNC_DECLARATOR:
+                    node = CreateNode(DECLARATOR, FUNC_DECLARATOR, NULL, NULL);
+                    break;
+                case VAR_DECLARATOR:
+                    node = CreateNode(DECLARATOR, VAR_DECLARATOR, NULL, NULL);
+                    break;
+                default:
+                    fprintf(stderr, "No declarator %s in DECLARATORS!\n", lexem);
+                    break;
+            }
+        } else if ((index = CheckForKeyWord(lexem)) != -1) {
+            node = CreateNode(KEYWORD, index, NULL, NULL);
+        } else if ((index = CheckForOperator(lexem)) != -1) {
+            node = CreateNode(OPERATOR, index, NULL, NULL);
+        } else if ((index = CheckForSeparator(lexem)) != -1) {
+            node = CreateNode(SEPARATOR, index, NULL, NULL);
+        } else if (CheckForNumber(lexem)) {
+            node = CreateNode(NUMBER, atoi(lexem), NULL, NULL);
+        } else if (CheckForVariable(lexem)) {
+            if ((var_index = TryFindInNameTable(lexem, tokens->nametable)) == -1)
+                var_index = UpdateInNameTable(lexem, tokens->nametable);
+
+            if (var_index == -1) fprintf(stderr, RED("Could't find place in nanetable!\n"));
+
+            node = CreateNode(VARIABLE, var_index, NULL, NULL);
+        } else {
+            fprintf(stderr, RED("Unknown lexem in code \"%s\"\n"), lexem);
+        }
+
+        tokens->lexems[tokens->size++] = node;
     }
 
     return tokens;
@@ -128,4 +163,95 @@ int CheckForUselessLexem(const char* lexem) {
     }
 
     return 0;
+}
+
+int CheckForDeclarator(const char* lexem) {
+    ASSERT(lexem != NULL, "NULL POINTER WAS PASSED!\n");
+
+    for (size_t i = 0; i < DECLARATORS_COUNT; i++) {
+        if (strcmp(lexem, DECLARATORS[i].name) == 0) {
+            return int(i);
+        }
+    }
+
+    return -1;
+}
+
+int CheckForKeyWord(const char* lexem) {
+    ASSERT(lexem != NULL, "NULL POINTER WAS PASSED!\n");
+
+    for (size_t i = 0; i < KEYWORDS_COUNT; i++) {
+        if (strcmp(lexem, KEYWORDS[i].name) == 0) {
+            return int(i);
+        }
+    }
+
+    return -1;
+}
+
+int CheckForOperator(const char* lexem) {
+    ASSERT(lexem != NULL, "NULL POINTER WAS PASSED!\n");
+
+    for (size_t i = 0; i < OPERATORS_COUNT; i++) {
+        if (strcmp(lexem, OPERATORS[i].name) == 0) {
+            return int(i);
+        }
+    }
+
+    return -1;
+}
+
+int CheckForSeparator(const char* lexem) {
+    ASSERT(lexem != NULL, "NULL POINTER WAS PASSED!\n");
+
+    for (size_t i = 0; i < SEPARATORS_COUNT; i++) {
+        if (strcmp(lexem, SEPARATORS[i].name) == 0) {
+            return int(i);
+        }
+    }
+
+    return -1;
+}
+
+int CheckForNumber(const char* lexem) {
+    ASSERT(lexem != NULL, "NULL POINTER WAS PASSED!\n");
+
+    if (*lexem == '-') lexem++;
+    while (isdigit(*lexem)) lexem++;
+
+    if (isspace(*lexem) || *lexem == '\0') return 1;
+
+    return 0;
+}
+
+int CheckForVariable(const char* lexem) {
+    ASSERT(lexem != NULL, "NULL POINTER WAS PASSED!\n");
+
+    if (!isalpha (*lexem) && *lexem == '_') return 0;
+
+    while (*++lexem) {
+        if (!isalnum (*lexem) && *lexem == '_') return 0;
+    }
+
+    return 1;
+}
+
+int TryFindInNameTable(const char* lexem, const NameTable* nametable) {
+    ASSERT(lexem     != NULL, "NULL POINTER WAS PASSED!\n");
+    ASSERT(nametable != NULL, "NULL POINTER WAS PASSED!\n");
+
+    for (size_t i = 0; i < NAMETABLE_SIZE; i++) {
+        if (strcmp(lexem, nametable->names[i]) == 0) return int(i);
+    }
+
+    return -1;
+}
+
+int UpdateInNameTable(const char* lexem, NameTable* nametable) {
+    ASSERT(lexem     != NULL, "NULL POINTER WAS PASSED!\n");
+    ASSERT(nametable != NULL, "NULL POINTER WAS PASSED!\n");
+
+    strcpy(nametable->names[nametable->free], lexem);
+
+    return int(nametable->free++);
 }

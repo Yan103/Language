@@ -6,7 +6,6 @@
 #include <stdio.h>
 
 #include "TreeDump.h"
-#include "Operations.h"
 
 /// @brief Constant for LOG filename
 const char* LOG_FILENAME            = "../Differencator/DumpFiles/log.html";
@@ -25,7 +24,7 @@ const int   COMMAND_BUFFER_CONSTANT = 500;
     \param  [in] title  - information about call function
     @return The DUMP id
 */
-int TreeDump(Tree* tree, const char* func, int line, const char* title, ...) {
+/*int TreeDump(Tree* tree, const char* func, int line, const char* title, ...) {
     ASSERT(tree != NULL, "NULL POINTER WAS PASSED!\n");
 
     FILE* dot_file = fopen(DOT_FILENAME, "w");
@@ -83,17 +82,17 @@ int TreeDump(Tree* tree, const char* func, int line, const char* title, ...) {
     fclose(html_file);
 
     return dump_id;
-}
+}*/
 
 /*!
     @brief Function that returns time in what function was launched
     @return The information about the current time
 */
-static tm GetTime() {
+/*static tm GetTime() {
     time_t time_now = time(NULL);
 
     return *localtime(&time_now);
-}
+}*/
 
 /*!
     @brief Function that creates base for DUMP
@@ -101,7 +100,7 @@ static tm GetTime() {
     \param [in]     tree - pointer on tree
     @return The status of the function (return code)
 */
-FuncReturnCode CreateDotBase(FILE* filename, Tree* tree) {
+/*FuncReturnCode CreateDotBase(FILE* filename, Tree* tree) {
     ASSERT(filename != NULL, "NULL POINTER WAS PASSED!\n");
 
     fprintf(filename, "digraph tree{\n    node[shape=record,fontsize=14];\n    splines=ortho\n    ");
@@ -109,9 +108,9 @@ FuncReturnCode CreateDotBase(FILE* filename, Tree* tree) {
     NEWDOTLINE(filename);
 
     return SUCCESS;
-}
+}*/
 
-static const char* GetOperation(NodeData data) {
+/*static const char* GetOperation(NodeData data) {
     for (size_t i = 0; i < OPERATIONS_COUNT; i++) {
         if ((int)data == OPERATIONS[i].OpCode) {
             return OPERATIONS[i].name;
@@ -147,7 +146,7 @@ static void CreateColourNodeByType(FILE* filename, Node* node) {
             break;
         }
     }
-}
+}*/
 
 /*!
     @brief Function that creates node in DUMP
@@ -155,7 +154,7 @@ static void CreateColourNodeByType(FILE* filename, Node* node) {
     \param [in]     node - pointer on node
     @return The status of the function (return code)
 */
-FuncReturnCode CreateDotNode(FILE* filename, Node* node) {
+/*FuncReturnCode CreateDotNode(FILE* filename, Node* node) {
     ASSERT(node     != NULL, "NULL POINTER WAS PASSED!\n");
     ASSERT(filename != NULL, "NULL POINTER WAS PASSED!\n");
 
@@ -176,7 +175,7 @@ FuncReturnCode CreateDotNode(FILE* filename, Node* node) {
     }
 
     return SUCCESS;
-}
+}*/
 
 /*!
     @brief Function that creates HTML file with DUMP
@@ -187,7 +186,7 @@ FuncReturnCode CreateDotNode(FILE* filename, Node* node) {
     \param [in]     line - call function line
     @return The status of the function (return code)
 */
-FuncReturnCode MakeHTMLDump(FILE* html_file, Tree* tree, int dump_id, const char* func, int line) {
+/*FuncReturnCode MakeHTMLDump(FILE* html_file, Tree* tree, int dump_id, const char* func, int line) {
     ASSERT(tree      != NULL, "NULL POINTER WAS PASSED!\n");
     ASSERT(html_file != NULL, "NULL POINTER WAS PASSED!\n");
     ASSERT(func      != NULL, "NULL POINTER WAS PASSED!\n");
@@ -200,4 +199,4 @@ FuncReturnCode MakeHTMLDump(FILE* html_file, Tree* tree, int dump_id, const char
     fprintf(html_file, "\t<img src=dump%d.png>", dump_id);
 
     return SUCCESS;
-}
+}*/
