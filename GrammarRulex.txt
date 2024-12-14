@@ -1,0 +1,59 @@
+BNF RULES
+
+* -> 0 или более итераций
++ -> 1 или более операция
+? -> 0 или 1 итерация
+
+<General>            ::= { <FuncDeclarator> | <CompoundStatement> }+
+
+<FuncDeclarator>     ::= "итак_коллеги" <Identificator>
+                         "прочувствуйте" (<Identificator>)* "следующий_факт" <BlockStatement>
+
+<CompoundStatement>  ::= <BlockStatement> | <SimpleStatement>
+
+                                                                          | или тут * ?
+<BlockStatement>     ::= "начинаем_очередную_лекцию" (<CompoundStatement>)+ "коллеги_лекция_закончена"
+
+                          |> добавить сюда ELSE
+<SimpleStatement>    ::= <If>                       |
+                         <While>                    |
+                         <Assign> "перерыв_коллеги" |
+                         <Return> "перерыв_коллеги" |
+                         <Scan>   "перерыв_коллеги" | # пока этого правила нет (подумай)
+                         <Print>  "перерыв_коллеги"
+
+----------------------------------------------------------------------------------------------------------
+
+<If>                 ::= "ееесссли" <Expression> "=>" <BlockStatement>
+
+<While>              ::= "сейчас_пойдёт_деградация" <Expression> "=>" <BlockStatement>
+
+<Assign>             ::= <VariableDeclarator>? <Identificator> "зафиксируем_эпсилон:" <Expression>
+
+<Return>             ::= "получаем" <Expression>
+
+<Print>              ::= "покажем_что" <Expression>
+
+//* добавить правило для <Scan>
+
+<VariableDeclarator> ::= "родные_фивты"
+
+----------------------------------------------------------------------------------------------------------
+
+<Expression>         ::= <PlusMinusRes> { "<" | ">" | "<=" | ">=" | "==" | "!=" } <PlusMinusRes>
+
+<PlusMinusRes>       ::= <MulDivRes> { [ "+" | "-" ] <MulDivRes> }*
+
+<MulDivRes>          ::= <Operation> { [ "+" | "-" ] <MulDivRes> }*
+
+<Operation>          ::= "(" <Expression> ")" | <SimpleCondition>
+
+----------------------------------------------------------------------------------------------------------
+
+<SimpleCondition>    ::= <FunctionCall> | <Identificator> | <Number>
+
+<FunctionCall>       ::= <Identificator> "(" { <Expression> }* ")"
+
+<Identificator>      ::= { [Aa-Zz] | [Аа-Яя] | [0-9] | '_' }+
+
+<Number>             ::= { [0-9] }+

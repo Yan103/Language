@@ -24,7 +24,7 @@ const size_t DECLARATORS_COUNT = sizeof(DECLARATORS) / sizeof(DECLARATORS[0]);
 
 enum KeyWordsCode {
     IF     = 0,
-    ELSE   = 1,
+    ELSE   = 1,  // poka ego netu :(
     WHILE  = 2,
     RETURN = 3,
     SCAN   = 4,
