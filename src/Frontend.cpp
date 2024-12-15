@@ -281,9 +281,243 @@ Tree* CreateAST(const Tokens* tokens) {
     return ast;
 }
 
-Node* GetTree(Tokens* tokens, NameTable* nametable) {
-    ASSERT(tokens    != NULL, "NULL POINTER WAS PASSED!\n");
-    ASSERT(nametable != NULL, "NULL POINTER WAS PASSED!\n");
+void SyntaxAssert(bool condition, const char *text_error, const char *file, const char *func, int line) {
+    if (!(condition)) {
+        fprintf(stderr, RED("%s in: %s -> %s -> %d\n"), text_error, file, func, line);
+        abort();
+    }
+}
 
-    
+Node* GetTree(Tokens* tokens) {
+    ASSERT(tokens    != NULL, "NULL POINTER WAS PASSED!\n");
+
+    Node* new_statement_node = NULL;
+    Node* end_statement_node = NULL;
+
+    do {
+        new_statement_node = GetFuncDeclarator(tokens);
+
+        if (new_statement_node == NULL) new_statement_node = GetCompoundStatement(tokens);
+
+        if (new_statement_node)
+            end_statement_node = CreateNode(END_LINE, SEPARATOR, end_statement_node, new_statement_node);
+
+    } while (new_statement_node && tokens->offset < tokens->size);
+
+    SYNTAX_ASSERT(end_statement_node != NULL, "Syntax error!\n");
+
+    return end_statement_node;
+}
+
+Node* GetFuncDeclarator(Tokens* tokens) {
+    ASSERT(tokens    != NULL, "NULL POINTER WAS PASSED!\n");
+
+    if (tokens->lexems[tokens->offset]->type != DECLARATOR ||
+        tokens->lexems[tokens->offset]->data != FUNC_DECLARATOR) return NULL;
+    SHIFT(tokens); //* проверяем что правильно записано начало
+
+    Node* func_name_node = GetIdentificator(tokens);
+    SYNTAX_ASSERT(func_name_node != NULL, "Syntax error!\n"); //* имя функции
+
+    if (tokens->lexems[tokens->offset]->type != SEPARATOR ||
+        tokens->lexems[tokens->offset]->data != BEGIN_FUNC_PARAMETERS) SYNTAX_ASSERT(0, "Syntax error!\n");
+    SHIFT(tokens); //* проверяем что правильно записано начало
+
+    Node*  parameters_node    = NULL;
+    Node*  new_parameter_node = NULL;
+    int    parameters_count   = 0;
+
+    do {  //* хотим считывать параметры функции (возможно их несколько)
+        new_parameter_node = GetNewParameter(tokens);
+        if (new_parameter_node) {
+            parameters_count++;
+            parameters_node = CreateNode(SEPARATOR, END_LINE, parameters_node, new_parameter_node);
+        }
+    } while (new_parameter_node);
+
+    if (tokens->lexems[tokens->offset]->type != SEPARATOR ||
+        tokens->lexems[tokens->offset]->data != END_FUNC_PARAMETERS) SYNTAX_ASSERT(0, "Syntax error!\n");
+    SHIFT(tokens); //* проверка на синтаксис + скип
+
+    tokens->nametable->parameters_count[ func_name_node->data ] = parameters_count;
+
+    Node* func_body = GetBlockStatement(tokens);
+    SYNTAX_ASSERT(func_body != NULL, "Syntax error!\n");
+
+    Node* func_info = CreateNode(SEPARATOR, END_LINE, parameters_node, func_name_node);
+    //* правый сын - имя функции + параметры
+    //* левый сын  - что делается
+
+    return CreateNode(DECLARATOR, FUNC_DECLARATOR, func_body, func_info);
+}
+
+Node* GetCompoundStatement(Tokens* tokens) {
+    ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
+
+    int old_offset = tokens->offset;
+
+    Node* statement = GetBlockStatement(tokens);
+    if (statement) return statement;
+
+    tokens->offset = old_offset;
+
+    return GetSimpleStatement(tokens);
+}
+
+Node* GetBlockStatement(Tokens* tokens) {
+    ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
+
+    if (tokens->lexems[tokens->offset]->type != SEPARATOR ||
+        tokens->lexems[tokens->offset]->data != BEGIN_STATEMENT_BODY) SYNTAX_ASSERT(0, "Syntax error!\n");
+    SHIFT(tokens); //* проверка на синтаксис + скип
+
+    Node* statement_block = NULL;
+    Node* statement       = NULL;
+
+    do {
+        statement = GetCompoundStatement(tokens);
+
+        if (statement) statement_block = CreateNode(SEPARATOR, END_LINE, statement_block, statement);
+
+    } while (statement);
+
+    if (tokens->lexems[tokens->offset]->type != SEPARATOR ||
+        tokens->lexems[tokens->offset]->data != END_STATEMENT_BODY) SYNTAX_ASSERT(0, "Syntax error!\n");
+    SHIFT(tokens); //* проверка на синтаксис + скип
+
+    return statement_block;
+}
+
+Node* GetSimpleStatement(Tokens* tokens) {
+    ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
+
+    int old_offset = tokens->offset;
+
+    Node* simple_statement = NULL;
+
+    simple_statement = GetIf(tokens);
+    if (simple_statement) return simple_statement;
+
+    tokens->offset = old_offset;
+
+    simple_statement = GetWhile(tokens);
+    if (simple_statement) return simple_statement;
+
+    tokens->offset = old_offset;
+
+    simple_statement = GetAssign(tokens);
+    if (simple_statement) {
+
+        if (tokens->lexems[tokens->offset]->type != SEPARATOR ||
+            tokens->lexems[tokens->offset]->data != END_LINE) SYNTAX_ASSERT(0, "Syntax error!\n");
+        SHIFT(tokens); //* проверка на синтаксис + скип
+    }
+
+    tokens->offset = old_offset;
+
+    simple_statement = GetReturn(tokens);
+    if (simple_statement) {
+
+        if (tokens->lexems[tokens->offset]->type != SEPARATOR ||
+            tokens->lexems[tokens->offset]->data != END_LINE) SYNTAX_ASSERT(0, "Syntax error!\n");
+        SHIFT(tokens); //* проверка на синтаксис + скип
+    }
+
+    tokens->offset = old_offset;
+
+    simple_statement = GetPrint(tokens);
+    if (simple_statement == NULL) {  //* это последний, поэтому если нет, то пока(
+
+        tokens->offset = old_offset;
+        return NULL;
+    }
+
+    if (tokens->lexems[tokens->offset]->type != SEPARATOR ||
+        tokens->lexems[tokens->offset]->data != END_LINE) SYNTAX_ASSERT(0, "Syntax error!\n");
+
+    SHIFT(tokens);
+
+    return simple_statement;
+}
+
+Node* GetIf(Tokens* tokens) {
+    ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
+
+    if (tokens->lexems[tokens->offset]->type != KEYWORD ||
+        tokens->lexems[tokens->offset]->data != IF) SYNTAX_ASSERT(0, "Syntax error!\n");
+    SHIFT(tokens); //* проверка на синтаксис + скип
+
+    Node* condition = GetExpression(tokens);
+    SYNTAX_ASSERT(condition != NULL, "Syntax error!\n");
+
+    if (tokens->lexems[tokens->offset]->type != SEPARATOR ||
+        tokens->lexems[tokens->offset]->data != END_CONDITION) SYNTAX_ASSERT(0, "Syntax error!\n");
+    SHIFT(tokens); //* проверка на синтаксис + скип
+
+    Node* if_statement = GetCompoundStatement(tokens);
+    SYNTAX_ASSERT(if_statement != NULL, "Syntax error!\n");
+
+    Node* if_else_statement = CreateNode(KEYWORD, IF, if_statement, NULL);
+
+    if (tokens->lexems[tokens->offset]->type != KEYWORD ||
+        tokens->lexems[tokens->offset]->data != ELSE) return CreateNode(KEYWORD, IF, if_else_statement, condition);
+    SHIFT(tokens);
+
+    Node* else_statement = GetCompoundStatement(tokens);
+    SYNTAX_ASSERT(else_statement != NULL, "Syntax error!\n");
+
+    if_else_statement->right = else_statement;
+
+    return CreateNode(KEYWORD, IF, if_else_statement, condition);
+}
+
+Node* GetWhile(Tokens* tokens) {
+    ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
+
+    if (tokens->lexems[tokens->offset]->type != KEYWORD ||
+        tokens->lexems[tokens->offset]->data != WHILE) SYNTAX_ASSERT(0, "Syntax error!\n");
+    SHIFT(tokens); //* проверка на синтаксис + скип
+
+    Node* condition = GetExpression(tokens);
+    SYNTAX_ASSERT(condition != NULL, "Syntax error!\n");
+
+    if (tokens->lexems[tokens->offset]->type != SEPARATOR ||
+        tokens->lexems[tokens->offset]->data != END_CONDITION) SYNTAX_ASSERT(0, "Syntax error!\n");
+    SHIFT(tokens); //* проверка на синтаксис + скип
+
+    Node* while_statement = GetCompoundStatement(tokens);
+    SYNTAX_ASSERT(while_statement != NULL, "Syntax Error!\n");
+
+    return CreateNode(KEYWORD, WHILE, while_statement, condition);
+}
+
+Node* GetReturn(Tokens* tokens) {
+    ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
+
+    if (tokens->lexems[tokens->offset]->type != KEYWORD ||
+        tokens->lexems[tokens->offset]->data != RETURN) SYNTAX_ASSERT(0, "Syntax error!\n");
+    SHIFT(tokens); //* проверка на синтаксис + скип
+
+    Node* ret_value = GetExpression(tokens);
+    SYNTAX_ASSERT(ret_value != NULL, "Syntax error!\n");
+
+    return CreateNode(KEYWORD, RETURN, ret_value, NULL);
+}
+
+Node* GetPrint(Tokens* tokens) {
+    ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
+
+    if (tokens->lexems[tokens->offset]->type != KEYWORD ||
+        tokens->lexems[tokens->offset]->data != PRINT) SYNTAX_ASSERT(0, "Syntax error!\n");
+    SHIFT(tokens); //* проверка на синтаксис + скип
+
+    Node* print_value = GetExpression(tokens);
+    SYNTAX_ASSERT(print_value != NULL, "Syntax error!\n");
+
+    return CreateNode(KEYWORD, PRINT, print_value, NULL);
+}
+
+Node* GetAssign(Tokens* tokens) {
+    ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
+
 }

@@ -4,7 +4,8 @@ BNF RULES
 + -> 1 или более операция
 ? -> 0 или 1 итерация
 
-<General>            ::= { <FuncDeclarator> | <CompoundStatement> }+
+|> naming is my second name ^^
+<GetTree>            ::= { <FuncDeclarator> | <CompoundStatement> }+
 
 <FuncDeclarator>     ::= "итак_коллеги" <Identificator>
                          "прочувствуйте" (<Identificator>)* "следующий_факт" <BlockStatement>
@@ -34,7 +35,7 @@ BNF RULES
 
 <Print>              ::= "покажем_что" <Expression>
 
-//* добавить правило для <Scan>
+//* добавить правило для <Scan> ::=
 
 <VariableDeclarator> ::= "родные_фивты"
 
@@ -52,7 +53,7 @@ BNF RULES
 
 <SimpleCondition>    ::= <FuncCall> | <Identificator> | <Number>
 
-<FuncCall>       ::= <Identificator> "(" { <Expression> }* ")"
+<FuncCall>           ::= <Identificator> "(" { <Expression> }* ")"
 
 <Identificator>      ::= { [Aa-Zz] | [Аа-Яя] | [0-9] | '_' }+
 

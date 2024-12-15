@@ -24,7 +24,7 @@ const size_t DECLARATORS_COUNT = sizeof(DECLARATORS) / sizeof(DECLARATORS[0]);
 
 enum KeyWordsCode {
     IF     = 0,
-    ELSE   = 1,  // poka ego netu :(
+    ELSE   = 1, 
     WHILE  = 2,
     RETURN = 3,
     SCAN   = 4,
@@ -87,8 +87,8 @@ enum SeparatorCode {
     END_FUNC_PARAMETERS   = 2,
     BEGIN_EXPRESSION      = 3,
     END_EXPRESSION        = 4,
-    BEGIN_FUNC_BODY       = 5,
-    END_FUNC_BODY         = 6,
+    BEGIN_STATEMENT_BODY  = 5,
+    END_STATEMENT_BODY    = 6,
     END_CONDITION         = 7,
 };
 
@@ -103,8 +103,8 @@ const Separator SEPARATORS[] = {
     {"следующий_факт",            END_FUNC_PARAMETERS},
     {"(",                         BEGIN_EXPRESSION},
     {")",                         END_EXPRESSION},
-    {"начинаем_очередную_лекцию", BEGIN_FUNC_BODY},
-    {"коллеги_лекция_закончена",  END_FUNC_BODY},
+    {"начинаем_очередную_лекцию", BEGIN_STATEMENT_BODY},
+    {"коллеги_лекция_закончена",  END_STATEMENT_BODY},
     {"=>",                        END_CONDITION},
 };
 

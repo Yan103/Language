@@ -47,9 +47,10 @@ enum NodeDataType {
 };
 
 struct NameTable {
-    char*      names[NAMETABLE_SIZE];
-    int*  parameters[NAMETABLE_SIZE];
-    size_t                      free;
+    char*            names[NAMETABLE_SIZE];
+    int*        parameters[NAMETABLE_SIZE];
+    int   parameters_count[NAMETABLE_SIZE];
+    size_t                            free;
 };
 
 enum NodeLocation {

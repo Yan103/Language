@@ -10,6 +10,10 @@
 #define SHIFT(text, delta) { (text)->offset += delta; }
 #define IS_COMMENT(lexem)  *(lexem) == '/'
 
+#define SYNTAX_ASSERT(condition, text_error) SyntaxAssert(condition, text_error, __FILE__, __func__, __LINE__);
+#define SHIFT(tokens) { (tokens)->offset++;}
+
+
 const size_t TOKENS_COUNT = 1024;
 
 struct Text {
@@ -54,6 +58,8 @@ int TryFindInNameTable(const char* lexem, const NameTable* nametable);
 
 int UpdateInNameTable(const char* lexem, NameTable* nametable);
 
+void SyntaxError(bool condition, const char *text_error, const char *file, const char *func, int line);
+
 Tree* CreateAST(const Tokens* tokens);
 
 FuncReturnCode WriteAST(const Tree* ast);
@@ -63,22 +69,22 @@ Node* GetTree(Tokens* tokens, NameTable* nametable);
 Node* GetFuncDeclarator(Tokens* tokens, NameTable* nametable);
 Node* GetCompoundStatement(Tokens* tokens, NameTable* nametable);
 
-Node* GetBlockStatement  (Tokens* tokens, NameTable* nametable);
-Node* GetSimpleStatement (Tokens* tokens, NameTable* nametable);
-Node* GetIf              (Tokens* tokens, NameTable* nametable);
-Node* GetWhile           (Tokens* tokens, NameTable* nametable);
-Node* GetAssign          (Tokens* tokens, NameTable* nametable);
-Node* GetReturn          (Tokens* tokens, NameTable* nametable);
-Node* GetPrint           (Tokens* tokens, NameTable* nametable);
-Node* GetVarDeclarator   (Tokens* tokens, NameTable* nametable);
-Node* GetExpression      (Tokens* tokens, NameTable* nametable);
-Node* GetPlusMinusRes    (Tokens* tokens, NameTable* nametable);
-Node* GetMulDivRes       (Tokens* tokens, NameTable* nametable);
-Node* GetOperation       (Tokens* tokens, NameTable* nametable);
-Node* GetSimpleCondition (Tokens* tokens, NameTable* nametable);
-Node* GetFuncCall        (Tokens* tokens, NameTable* nametable);
-Node* GetIdentificator   (Tokens* tokens, NameTable* nametable);
-Node* GetNumber          (Tokens* tokens, NameTable* nametable);
+Node* GetBlockStatement  (Tokens* tokens);
+Node* GetSimpleStatement (Tokens* tokens);
+Node* GetIf              (Tokens* tokens);
+Node* GetWhile           (Tokens* tokens);
+Node* GetAssign          (Tokens* tokens);
+Node* GetReturn          (Tokens* tokens);
+Node* GetPrint           (Tokens* tokens);
+Node* GetVarDeclarator   (Tokens* tokens);
+Node* GetExpression      (Tokens* tokens);
+Node* GetPlusMinusRes    (Tokens* tokens);
+Node* GetMulDivRes       (Tokens* tokens);
+Node* GetOperation       (Tokens* tokens);
+Node* GetSimpleCondition (Tokens* tokens);
+Node* GetFuncCall        (Tokens* tokens);
+Node* GetIdentificator   (Tokens* tokens);
+Node* GetNumber          (Tokens* tokens);
 
 
 #endif // FRONTEND_H

@@ -185,7 +185,8 @@ NameTable* NameTableCtor() {
         nametable->names[i] = (char*) calloc(MAX_NAME_LENGTH, sizeof(char));
         NULL_CHECK(nametable->names[i]);
 
-        nametable->parameters[i] = NULL;
+        nametable->parameters[i]       = NULL;
+        nametable->parameters_count[i] = 0;
     }
 
     nametable->free = 0;
