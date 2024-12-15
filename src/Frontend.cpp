@@ -6,6 +6,8 @@
 #include "Frontend.h"
 #include "BinaryTree.h"
 
+const char* AST_FILENAME = "../Language/ast.txt";
+
 static size_t GetFileLength(const char* filename) {
     struct stat st = {};
     stat(filename, &st);
@@ -230,7 +232,7 @@ int CheckForVariable(const char* lexem) {
     if (!isalpha (*lexem) && *lexem == '_') return 0;
 
     while (*++lexem) {
-        if (!isalnum (*lexem) && *lexem == '_') return 0;
+        if (!isalnum (*lexem) && *lexem == '_') return 0; //! запрещаю делать переменные с _
     }
 
     return 1;
@@ -254,4 +256,34 @@ int UpdateInNameTable(const char* lexem, NameTable* nametable) {
     strcpy(nametable->names[nametable->free], lexem);
 
     return int(nametable->free++);
+}
+
+FuncReturnCode WriteAST(const Tree* ast) {
+    ASSERT(ast != NULL, "NULL POINTER WAS PASSED!\n");
+
+    FILE* ast_file = fopen(AST_FILENAME, "wb");
+    //NULL_CHECK(ast_file);
+
+    WriteTree(ast_file, ast);
+    fclose(ast_file);
+
+    return SUCCESS;
+}
+
+Tree* CreateAST(const Tokens* tokens) {
+    ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
+
+    Tree* ast = TreeCtor();
+    CopyOfNameTable(ast->nametable, tokens->nametable);
+
+    ast->root = GetTree(tokens, ast->nametable);
+
+    return ast;
+}
+
+Node* GetTree(Tokens* tokens, NameTable* nametable) {
+    ASSERT(tokens    != NULL, "NULL POINTER WAS PASSED!\n");
+    ASSERT(nametable != NULL, "NULL POINTER WAS PASSED!\n");
+
+    
 }

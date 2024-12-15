@@ -50,9 +50,9 @@ BNF RULES
 
 ----------------------------------------------------------------------------------------------------------
 
-<SimpleCondition>    ::= <FunctionCall> | <Identificator> | <Number>
+<SimpleCondition>    ::= <FuncCall> | <Identificator> | <Number>
 
-<FunctionCall>       ::= <Identificator> "(" { <Expression> }* ")"
+<FuncCall>       ::= <Identificator> "(" { <Expression> }* ")"
 
 <Identificator>      ::= { [Aa-Zz] | [Аа-Яя] | [0-9] | '_' }+
 

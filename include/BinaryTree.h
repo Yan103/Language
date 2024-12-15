@@ -24,7 +24,7 @@ const size_t MAX_NAME_LENGTH =  200;
 const size_t NAMETABLE_SIZE  = 1000;
 
 /// @brief Type of items in a nodes' data
-typedef double NodeData;
+typedef int NodeData;
 
 /// @brief Enum with return functions codes
 enum FuncReturnCode {
@@ -67,7 +67,8 @@ struct Node {
 
 /// @brief Structure binary tree
 struct Tree {
-    Node*    root;
+    Node*           root;
+    NameTable* nametable;
 };
 
 struct ReadString {
@@ -77,10 +78,9 @@ struct ReadString {
 
 /*!
     @brief Function that creates binary tree
-    \param [out] root - pointer on tree root
     @return The pointer on the tree
 */
-Tree* TreeCtor(Node* root);
+Tree* TreeCtor();
 
 /*!
     @brief Function that creates node
@@ -122,6 +122,12 @@ Node* GetF(ReadString* rs, const char* read_name);
 
 void SyntaxError() __attribute__ ((noreturn));
 
+FuncReturnCode WriteTree(FILE* filename, const Tree* tree);
+
+FuncReturnCode WriteSubTree(FILE* filename, const Node* node, const Tree* tree);
+
+FuncReturnCode WriteSubTreeNodeData(FILE* filename, const NodeDataType type, const NodeData data, const NameTable* nametable);
+
 ReadString* ReadExpFromFile(const char* filename);
 
 FuncReturnCode ReadStringDtor(ReadString* rs);
@@ -133,5 +139,11 @@ FuncReturnCode MemoryFree(Tree* tree, Tree* diff_tree, ReadString* rs);
 NameTable* NameTableCtor();
 
 void NameTableDtor(NameTable* nametable);
+FuncReturnCode CopyOfNameTable(NameTable* nt_dest, const NameTable* nt_dep);
+
+int FindDeclarator(const NodeData code);
+int    FindKeyWord(const NodeData code);
+int  FindSeparator(const NodeData code);
+int   FindOperator(const NodeData code);
 
 #endif // BINARY_TREE_H

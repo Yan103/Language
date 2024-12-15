@@ -4,7 +4,7 @@
 #include "BinaryTree.h"
 #include "Frontend.h"
 
-const char* INPUT_FILENAME = "../Language//Programs/test1.red";
+const char* INPUT_FILENAME = "../Language/Programs/test1.red";
 
 int main() {
 
@@ -13,6 +13,10 @@ int main() {
 
     ProgramTextDtor(program_text);
 
+    Tree* ast = CreateAST(tokens); // TODO update dump for AST
+    WriteAST(ast);
+
+    TreeDtor(ast);
     TokensDtor(tokens);
 
     return 0;

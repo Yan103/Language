@@ -12,23 +12,19 @@
 
 #include "BinaryTree.h"
 #include "TreeDump.h"
+#include "LanguageSyntaxis.h"
 
 /*!
     @brief Function that creates binary tree
     \param [out] root - pointer on tree root
     @return The pointer on the tree
 */
-Tree* TreeCtor(Node* root) {
-    ASSERT(root != NULL, "NULL POINTER WAS PASSED!\n");
-
+Tree* TreeCtor() {
     Tree* tree = (Tree*) calloc(1, sizeof(Tree));
-    if (!tree) {
-        fprintf(stderr, RED("MEMORY ERROR!\n"));
+    NULL_CHECK(tree);
 
-        return NULL;
-    }
-
-    tree->root = root;
+    tree->nametable = NameTableCtor();
+    NULL_CHECK(tree->nametable);
 
     return tree;
 }
@@ -84,6 +80,7 @@ FuncReturnCode TreeDtor(Tree* tree) {
     ASSERT(tree != NULL, "NULL POINTER WAS PASSED!\n");
 
     SubTreeDtor(tree->root);
+    NameTableDtor(tree->nametable);
     FREE(tree);
 
     return SUCCESS;
@@ -204,4 +201,139 @@ void NameTableDtor(NameTable* nametable) {
     }
 
     FREE(nametable);
+}
+
+/*!
+    @brief Function that writes binary tree in the file
+    \param [in] filename - pointer on the file
+    \param [in]     tree - pointer on tree
+    @return The status of the function (return code)
+*/
+FuncReturnCode WriteTree(FILE* filename, const Tree* tree) {
+    ASSERT(filename != NULL, "NULL POINTER WAS PASSED!\n");
+    ASSERT(tree     != NULL, "NULL POINTER WAS PASSED!\n");
+
+    WriteSubTree(filename, tree->root, tree);
+    fprintf(filename, "\n"); //! мб это не нужно (ну или просто чтоб легко дебажить)
+
+    return SUCCESS;
+}
+
+/*!
+    @brief Function that writes subtree in file
+    \param [in] filename - pointer on the file
+    \param [in]     node - pointer on node
+    @return The status of the function (return code)
+*/
+FuncReturnCode WriteSubTree(FILE* filename, const Node* node, const Tree* tree) {
+    ASSERT(filename != NULL, "NULL POINTER WAS PASSED!\n");
+    ASSERT(tree     != NULL, "NULL POINTER WAS PASSED!\n");
+
+    if (node == NULL) {
+        fprintf(filename, "* ");
+
+        return SUCCESS;
+    }
+
+    fprintf(filename, "{ ");
+
+    WriteSubTree(filename, node->left, tree);
+    WriteSubTreeNodeData(filename, node->type, node->data, tree->nametable);
+    WriteSubTree(filename, node->right, tree);
+
+    fprintf(filename, "} ");
+
+    return SUCCESS;
+}
+
+FuncReturnCode WriteSubTreeNodeData(FILE* filename, NodeDataType type, NodeData data, const NameTable* nametable) {
+    ASSERT(filename  != NULL, "NULL POINTER WAS PASSED!\n");
+    ASSERT(nametable != NULL, "NULL POINTER WAS PASSED!\n");
+
+    int index = -1;
+
+    switch (type) {
+        case NUMBER: {
+            fprintf(filename, "%d ", data);
+            break;
+        }
+        case VARIABLE: {
+            fprintf(filename, "%s ", nametable->names[data]);
+            break;
+        }
+        case DECLARATOR: {
+            if ((index = FindDeclarator(data)) != -1) fprintf(filename, "%s ", DECLARATORS[index].name);
+            else                                      fprintf(stderr, RED("Unknown declarator!\n"));
+            break;
+        }
+        case KEYWORD: {
+            if ((index = FindKeyWord(data)) != -1)    fprintf(filename, "%s ", KEYWORDS[index].name);
+            else                                      fprintf(stderr, RED("Unknown keyword!\n"));
+            break;
+        }
+        case SEPARATOR: {
+            if ((index = FindSeparator(data)) != -1)  fprintf(filename, "%s ", SEPARATORS[index].name);
+            else                                      fprintf(stderr, RED("Unknown separator!\n"));
+            break;
+        }
+        case OPERATOR: {
+            if ((index = FindOperator(data)) != -1)   fprintf(filename, "%s ", OPERATORS[index].name);
+            else                                      fprintf(stderr, RED("Unknown operator!\n"));
+            break;
+        }
+        default:
+            fprintf(stderr, "Unknown error in WriteSubTreeNodeData!\n");
+            return UNKNOWN_ERROR;
+    }
+
+    return SUCCESS;
+}
+
+int FindDeclarator(const NodeData code) {
+    for (size_t i = 0; i < DECLARATORS_COUNT; i++) {
+        if (code == DECLARATORS[i].code)
+            return int(i);
+    }
+
+    return -1;
+}
+
+int FindKeyWord(const NodeData code) {
+    for (size_t i = 0; i < KEYWORDS_COUNT; i++) {
+        if (code == KEYWORDS[i].code)
+            return int(i);
+    }
+
+    return -1;
+}
+
+int FindSeparator(const NodeData code) {
+    for (size_t i = 0; i < SEPARATORS_COUNT; i++) {
+        if (code == SEPARATORS[i].code)
+            return int(i);
+    }
+
+    return -1;
+}
+
+int FindOperator(const NodeData code) {
+    for (size_t i = 0; i < OPERATORS_COUNT; i++) {
+        if (code == OPERATORS[i].code)
+            return int(i);
+    }
+
+    return -1;
+}
+
+FuncReturnCode CopyOfNameTable(NameTable* nt_dest, const NameTable* nt_src) {
+    ASSERT(nt_dest != NULL, "NULL POINTER WAS PASSED!\n");
+    ASSERT(nt_src  != NULL, "NULL POINTER WAS PASSED!\n");
+
+    for (size_t i = 0; i < NAMETABLE_SIZE; i++) {
+        memcpy(nt_dest->names[i], nt_src->names[i], strlen(nt_src->names[i]));
+    }
+
+    nt_dest->free = nt_src->free;
+
+    return SUCCESS;
 }
