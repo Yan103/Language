@@ -601,11 +601,11 @@ Node* GetExpression(Tokens* tokens) {
         return NULL;
     }
 
-    if ((tokens->lexems[tokens->offset]->type != OPERATOR || tokens->lexems[tokens->offset]->data != LESS) &&
-        (tokens->lexems[tokens->offset]->type != OPERATOR || tokens->lexems[tokens->offset]->data != MORE) &&
+    if ((tokens->lexems[tokens->offset]->type != OPERATOR || tokens->lexems[tokens->offset]->data != LESS)       &&
+        (tokens->lexems[tokens->offset]->type != OPERATOR || tokens->lexems[tokens->offset]->data != MORE)       &&
         (tokens->lexems[tokens->offset]->type != OPERATOR || tokens->lexems[tokens->offset]->data != LESS_EQUAL) &&
         (tokens->lexems[tokens->offset]->type != OPERATOR || tokens->lexems[tokens->offset]->data != MORE_EQUAL) &&
-        (tokens->lexems[tokens->offset]->type != OPERATOR || tokens->lexems[tokens->offset]->data != EQUAL) &&
+        (tokens->lexems[tokens->offset]->type != OPERATOR || tokens->lexems[tokens->offset]->data != EQUAL)      &&
         (tokens->lexems[tokens->offset]->type != OPERATOR || tokens->lexems[tokens->offset]->data != NOT_EQUAL))
         return first_result;
 
@@ -657,8 +657,8 @@ Node* GetPlusMinusRes(Tokens* tokens) {
         return NULL;
     }
 
-    if (tokens->lexems[tokens->offset]->type != OPERATOR || tokens->lexems[tokens->offset]->data != ADD &&
-        tokens->lexems[tokens->offset]->type != OPERATOR || tokens->lexems[tokens->offset]->data != SUB)
+    if ( (tokens->lexems[tokens->offset]->type != OPERATOR || tokens->lexems[tokens->offset]->data != ADD) &&
+         (tokens->lexems[tokens->offset]->type != OPERATOR || tokens->lexems[tokens->offset]->data != SUB))
         return plusminus_res;
 
     while ( tokens->offset < tokens->size && (
@@ -700,8 +700,8 @@ Node* GetMulDivRes(Tokens* tokens) {
         return NULL;
     }
 
-    if ((tokens->lexems[tokens->offset]->type != OPERATOR || tokens->lexems[tokens->offset]->data != MUL) &&
-        (tokens->lexems[tokens->offset]->type != OPERATOR || tokens->lexems[tokens->offset]->data != DIV))
+    if ( (tokens->lexems[tokens->offset]->type != OPERATOR || tokens->lexems[tokens->offset]->data != MUL) &&
+         (tokens->lexems[tokens->offset]->type != OPERATOR || tokens->lexems[tokens->offset]->data != DIV))
         return muldiv_res;
 
     while ( tokens->offset < tokens->size && (
@@ -737,8 +737,8 @@ Node* GetSqrtRes (Tokens* tokens) {
 
     if ( tokens->offset >= tokens->size ||
         (tokens->lexems[tokens->offset]->type != OPERATOR || tokens->lexems[tokens->offset]->data != SQRT)) {
-        tokens->offset = old_offset;
 
+        tokens->offset = old_offset;
         return GetOperation(tokens);
     }
     SHIFT(tokens);
