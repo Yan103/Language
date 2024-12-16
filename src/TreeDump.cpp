@@ -6,12 +6,13 @@
 #include <stdio.h>
 
 #include "TreeDump.h"
+#include "LanguageSyntaxis.h"
 
 /// @brief Constant for LOG filename
-const char* LOG_FILENAME            = "../Differencator/DumpFiles/log.html";
+const char* LOG_FILENAME            = "../Language/DumpFiles/log.html";
 
 /// @brief Constant for DOT filename
-const char* DOT_FILENAME            = "../Differencator/DumpFiles/dump.dot";
+const char* DOT_FILENAME            = "../Language/DumpFiles/dump.dot";
 
 /// @brief Constant for command busser size
 const int   COMMAND_BUFFER_CONSTANT = 500;
@@ -24,7 +25,7 @@ const int   COMMAND_BUFFER_CONSTANT = 500;
     \param  [in] title  - information about call function
     @return The DUMP id
 */
-/*int TreeDump(Tree* tree, const char* func, int line, const char* title, ...) {
+int TreeDump(Tree* tree, const char* func, int line, const char* title, ...) {
     ASSERT(tree != NULL, "NULL POINTER WAS PASSED!\n");
 
     FILE* dot_file = fopen(DOT_FILENAME, "w");
@@ -35,7 +36,7 @@ const int   COMMAND_BUFFER_CONSTANT = 500;
     }
 
     CreateDotBase(dot_file, tree);
-    CreateDotNode(dot_file, tree->root);
+    CreateDotNode(dot_file, tree->root, tree);
     fprintf(dot_file, "\n}");
 
     int dump_id = rand();
@@ -48,7 +49,7 @@ const int   COMMAND_BUFFER_CONSTANT = 500;
     }
     fclose(dot_file);
 
-    sprintf(command, "dot -Tpng %s -o /home/yan/projects/Differencator/DumpFiles/dump%d.png",
+    sprintf(command, "dot -Tpng %s -o /home/yan/projects/Language/DumpFiles/dump%d.png",
                                  DOT_FILENAME,                                   dump_id);
 
     int system_end = system(command);
@@ -82,17 +83,17 @@ const int   COMMAND_BUFFER_CONSTANT = 500;
     fclose(html_file);
 
     return dump_id;
-}*/
+}
 
 /*!
     @brief Function that returns time in what function was launched
     @return The information about the current time
 */
-/*static tm GetTime() {
+static tm GetTime() {
     time_t time_now = time(NULL);
 
     return *localtime(&time_now);
-}*/
+}
 
 /*!
     @brief Function that creates base for DUMP
@@ -100,7 +101,7 @@ const int   COMMAND_BUFFER_CONSTANT = 500;
     \param [in]     tree - pointer on tree
     @return The status of the function (return code)
 */
-/*FuncReturnCode CreateDotBase(FILE* filename, Tree* tree) {
+FuncReturnCode CreateDotBase(FILE* filename, Tree* tree) {
     ASSERT(filename != NULL, "NULL POINTER WAS PASSED!\n");
 
     fprintf(filename, "digraph tree{\n    node[shape=record,fontsize=14];\n    splines=ortho\n    ");
@@ -108,37 +109,42 @@ const int   COMMAND_BUFFER_CONSTANT = 500;
     NEWDOTLINE(filename);
 
     return SUCCESS;
-}*/
-
-/*static const char* GetOperation(NodeData data) {
-    for (size_t i = 0; i < OPERATIONS_COUNT; i++) {
-        if ((int)data == OPERATIONS[i].OpCode) {
-            return OPERATIONS[i].name;
-        }
-    }
-
-    return NULL;
 }
 
-static void CreateColourNodeByType(FILE* filename, Node* node) {
+static void CreateColourNodeByType(FILE* filename, Node* node, Tree* tree) {
     ASSERT(node     != NULL, "NULL POINTER WAS PASSED!\n");
     ASSERT(filename != NULL, "NULL POINTER WAS PASSED!\n");
+    ASSERT(tree     != NULL, "NULL POINTER WAS PASSED!\n");
 
     switch (node->type) {
-        case NUM: {
+        case NUMBER: {
             fprintf(filename, "\tnode%p[shape=Mrecord,style=\"rounded,filled\",fillcolor=\"lightblue\","
-                                "label=\"%lg\"]\n", node, node->data);
+                                "label=\"%d\"]\n", node, node->data);
             break;
         }
-        case VAR: {
-            fprintf(filename, "\tnode%p[shape=Mrecord,style=\"rounded,filled\",fillcolor=\"lightpink\","
-                                "label=\"x\"]\n", node);
-            break;
-        }
-        case BI_OP:
-        case UN_OP: {
+        case VARIABLE: {
             fprintf(filename, "\tnode%p[shape=Mrecord,style=\"rounded,filled\",fillcolor=\"lightgreen\","
-                              "label=\"%s\"]\n", node, GetOperation(node->data));
+                                "label=\"%s\"]\n", node, GetVarName(node->data, tree));
+            break;
+        }
+        case DECLARATOR: {
+            fprintf(filename, "\tnode%p[shape=Mrecord,style=\"rounded,filled\",fillcolor=\"red\","
+                                "label=\"%s\"]\n", node, DECLARATORS[node->data].name);
+            break;
+        }
+        case KEYWORD: {
+            fprintf(filename, "\tnode%p[shape=Mrecord,style=\"rounded,filled\",fillcolor=\"orange\","
+                                "label=\"%s\"]\n", node, GetKeyWordName(node->data, tree));
+            break;
+        }
+        case SEPARATOR: {
+            fprintf(filename, "\tnode%p[shape=Mrecord,style=\"rounded,filled\",fillcolor=\"pink\","
+                                "label=\"%s\"]\n", node, GetSeparatorName(node->data, tree));
+            break;
+        }
+        case OPERATOR: {
+            fprintf(filename, "\tnode%p[shape=Mrecord,style=\"rounded,filled\",fillcolor=\"white\","
+                                "label=\"%s\"]\n", node, GetOperatorName(node->data, tree));
             break;
         }
         default: {
@@ -146,7 +152,7 @@ static void CreateColourNodeByType(FILE* filename, Node* node) {
             break;
         }
     }
-}*/
+}
 
 /*!
     @brief Function that creates node in DUMP
@@ -154,28 +160,29 @@ static void CreateColourNodeByType(FILE* filename, Node* node) {
     \param [in]     node - pointer on node
     @return The status of the function (return code)
 */
-/*FuncReturnCode CreateDotNode(FILE* filename, Node* node) {
+FuncReturnCode CreateDotNode(FILE* filename, Node* node, Tree* tree) {
     ASSERT(node     != NULL, "NULL POINTER WAS PASSED!\n");
     ASSERT(filename != NULL, "NULL POINTER WAS PASSED!\n");
+    ASSERT(tree     != NULL, "NULL POINTER WAS PASSED!\n");
 
     if (node->left) {
-        CreateColourNodeByType(filename, node);
+        CreateColourNodeByType(filename, node, tree);
         fprintf(filename, "\tnode%p->node%p\n", node, node->left);
-        CreateDotNode(filename, node->left);
+        CreateDotNode(filename, node->left, tree);
     } else {
-        CreateColourNodeByType(filename, node);
+        CreateColourNodeByType(filename, node, tree);
     }
 
     if (node->right) {
-        CreateColourNodeByType(filename, node);
+        CreateColourNodeByType(filename, node, tree);
         fprintf(filename, "\tnode%p->node%p\n", node, node->right);
-        CreateDotNode(filename, node->right);
+        CreateDotNode(filename, node->right, tree);
     } else {
-        CreateColourNodeByType(filename, node);
+        CreateColourNodeByType(filename, node, tree);
     }
 
     return SUCCESS;
-}*/
+}
 
 /*!
     @brief Function that creates HTML file with DUMP
@@ -186,7 +193,7 @@ static void CreateColourNodeByType(FILE* filename, Node* node) {
     \param [in]     line - call function line
     @return The status of the function (return code)
 */
-/*FuncReturnCode MakeHTMLDump(FILE* html_file, Tree* tree, int dump_id, const char* func, int line) {
+FuncReturnCode MakeHTMLDump(FILE* html_file, Tree* tree, int dump_id, const char* func, int line) {
     ASSERT(tree      != NULL, "NULL POINTER WAS PASSED!\n");
     ASSERT(html_file != NULL, "NULL POINTER WAS PASSED!\n");
     ASSERT(func      != NULL, "NULL POINTER WAS PASSED!\n");
@@ -199,4 +206,40 @@ static void CreateColourNodeByType(FILE* filename, Node* node) {
     fprintf(html_file, "\t<img src=dump%d.png>", dump_id);
 
     return SUCCESS;
-}*/
+}
+
+const char* GetVarName(int index, Tree* tree) {
+    ASSERT(tree != NULL, "NULL POINTER WAS PASSED!\n");
+
+    return tree->nametable->names[index];
+}
+
+const char* GetKeyWordName(int index, Tree* tree) {
+    ASSERT(tree != NULL, "NULL POINTER WAS PASSED!\n");
+
+    for (size_t i = 0; i < KEYWORDS_COUNT; i++) {
+        if (index == KEYWORDS[i].code) return KEYWORDS[i].name;
+    }
+
+    return NULL;
+}
+
+const char* GetSeparatorName(int index, Tree* tree) {
+    ASSERT(tree != NULL, "NULL POINTER WAS PASSED!\n");
+
+    for (size_t i = 0; i < SEPARATORS_COUNT; i++) {
+        if (index == SEPARATORS[i].code) return SEPARATORS[i].name;
+    }
+
+    return NULL;
+}
+
+const char* GetOperatorName(int index, Tree* tree) {
+    ASSERT(tree != NULL, "NULL POINTER WAS PASSED!\n");
+
+    for (size_t i = 0; i < OPERATORS_COUNT; i++) {
+        if (index == OPERATORS[i].code) return OPERATORS[i].name;
+    }
+
+    return NULL;
+}

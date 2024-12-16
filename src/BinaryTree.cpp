@@ -215,7 +215,6 @@ FuncReturnCode WriteTree(FILE* filename, const Tree* tree) {
     ASSERT(tree     != NULL, "NULL POINTER WAS PASSED!\n");
 
     WriteSubTree(filename, tree->root, tree);
-    fprintf(filename, "\n"); //! мб это не нужно (ну или просто чтоб легко дебажить)
 
     return SUCCESS;
 }

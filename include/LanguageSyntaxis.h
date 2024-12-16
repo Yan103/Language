@@ -3,8 +3,6 @@
 
 #include <stdio.h>
 
-// TODO function declaration, keywords, new types and
-
 enum DeclaratorCode {
     FUNC_DECLARATOR = 0,
     VAR_DECLARATOR  = 1,
@@ -24,7 +22,7 @@ const size_t DECLARATORS_COUNT = sizeof(DECLARATORS) / sizeof(DECLARATORS[0]);
 
 enum KeyWordsCode {
     IF     = 0,
-    ELSE   = 1, 
+    ELSE   = 1,
     WHILE  = 2,
     RETURN = 3,
     SCAN   = 4,
@@ -58,6 +56,7 @@ enum OperatorCode {
     EQUAL      = 8,
     NOT_EQUAL  = 9,
     ASSIGN     = 10,
+    SQRT       = 11,
 };
 
 struct Operator {
@@ -77,6 +76,7 @@ const Operator OPERATORS[] = {
     {"==",                   EQUAL},
     {"!=",                   NOT_EQUAL},
     {"зафиксируем_эпсилон:", ASSIGN},
+    {"корень",                     SQRT},
 };
 
 const size_t OPERATORS_COUNT = sizeof(OPERATORS) / sizeof(OPERATORS[0]);

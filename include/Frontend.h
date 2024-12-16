@@ -74,7 +74,7 @@ Node* GetWhile             (Tokens* tokens);
 Node* GetAssign            (Tokens* tokens);
 Node* GetReturn            (Tokens* tokens);
 Node* GetPrint             (Tokens* tokens);
-Node* GetVarDeclarator     (Tokens* tokens);
+Node* GetSqrtRes           (Tokens* tokens);
 Node* GetExpression        (Tokens* tokens);
 Node* GetPlusMinusRes      (Tokens* tokens);
 Node* GetMulDivRes         (Tokens* tokens);

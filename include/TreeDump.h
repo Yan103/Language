@@ -48,10 +48,10 @@ FuncReturnCode CreateDotBase(FILE* filename, Tree* tree);
 /*!
     @brief Function that creates node in DUMP
     \param [in] filename - filename .dot file for DUMP
-    \param [in]     node - pointer on node
+    \param [in]     tree - pointer on tree
     @return The status of the function (return code)
 */
-FuncReturnCode CreateDotNode(FILE* filename, Node* node);
+FuncReturnCode CreateDotNode(FILE* filename, Node* node, Tree* tree);
 
 /*!
     @brief Function that creates HTML file with DUMP
@@ -63,5 +63,10 @@ FuncReturnCode CreateDotNode(FILE* filename, Node* node);
     @return The status of the function (return code)
 */
 FuncReturnCode MakeHTMLDump(FILE* html_file, Tree* tree, int dump_id, const char* func, int line);
+
+const char* GetVarName(int index, Tree* tree);
+const char* GetKeyWordName(int index, Tree* tree);
+const char* GetSeparatorName(int index, Tree* tree);
+const char* GetOperatorName(int index, Tree* tree);
 
 #endif // TREEDUMP_H

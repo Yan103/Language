@@ -111,18 +111,6 @@ int SubTreeHaveArgs(Node* node);
 
 FuncReturnCode SubTreeToNum(Node* node, NodeData value);
 
-Node* GetP(ReadString* rs);
-Node* GetE(ReadString* rs);
-Node* GetG(ReadString* rs);
-Node* GetN(ReadString* rs);
-Node* GetT(ReadString* rs);
-Node* GetB(ReadString* rs);
-Node* GetS(ReadString* rs);
-Node* GetV(ReadString* rs);
-Node* GetF(ReadString* rs, const char* read_name);
-
-void SyntaxError() __attribute__ ((noreturn));
-
 FuncReturnCode WriteTree(FILE* filename, const Tree* tree);
 
 FuncReturnCode WriteSubTree(FILE* filename, const Node* node, const Tree* tree);
