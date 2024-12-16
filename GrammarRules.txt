@@ -45,7 +45,7 @@ BNF RULES
 
 <PlusMinusRes>       ::= <MulDivRes> { [ "+" | "-" ] <MulDivRes> }*
 
-<MulDivRes>          ::= <Operation> { [ "+" | "-" ] <MulDivRes> }*
+<MulDivRes>          ::= <Operation> { [ "*" | "/" ] <MulDivRes> }*
 
 <Operation>          ::= "(" <Expression> ")" | <SimpleCondition>
 
