@@ -34,6 +34,7 @@ struct KeyWord {
     KeyWordsCode code;
 };
 
+// TODO keyword for else
 const KeyWord KEYWORDS[] = {
     {"ееесссли",                 IF},
     {"сейчас_пойдёт_деградация", WHILE},

@@ -24,6 +24,10 @@ int main() {
 
     TREE_DUMP(ast, "End: %s", __func__);
 
+    TreeSimplify(ast);
+
+    TREE_DUMP(ast, "End: %s", __func__);
+
     TreeDtor(ast);
     TokensDtor(tokens);
 

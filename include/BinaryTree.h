@@ -6,6 +6,7 @@
 #ifndef BINARY_TREE_H
 #define BINARY_TREE_H
 
+#include <math.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,11 +15,25 @@
 #include "Tools.h"
 #include "BinaryTree.h"
 
+static const double EPS = 1e-8; /// A small value to compare numbers of the type
+
 #define NULL_CHECK(pointer)                       \
 if (!pointer) {                                   \
     fprintf(stderr, "Null pointer error!!!\n");   \
     return NULL;                                  \
 }                                                 \
+
+/*!
+   The function compares a number with zero
+   \param [in] number - number
+   \return Returns 1 if the number is zero, otherwise 0
+*/
+static bool is_zero(double number) {
+   return fabs(number) < EPS;
+}
+
+#define IS_ZERO(number) is_zero(number)
+#define  IS_ONE(number) is_zero(number - 1)
 
 const size_t MAX_NAME_LENGTH =  200;
 const size_t NAMETABLE_SIZE  = 1000;
@@ -35,6 +50,11 @@ enum FuncReturnCode {
     TREE_READ_ERROR       = -4,
     UNKNOWN_FLAG          = -5,
     SYSCALL_ERROR         = -6,
+};
+
+enum TreeSimplifyCode {
+    TREE_SIMPLIFY_SUCCESS =  0,
+    TREE_SIMPLIFY_ERROR   = -1,
 };
 
 enum NodeDataType {
@@ -134,5 +154,15 @@ int FindDeclarator(const NodeData code);
 int    FindKeyWord(const NodeData code);
 int  FindSeparator(const NodeData code);
 int   FindOperator(const NodeData code);
+
+TreeSimplifyCode TreeSimplify(Tree* tree);
+
+TreeSimplifyCode SubTreeSimplify(Node* node);
+
+TreeSimplifyCode SubTreeSimplifyConstants(Node* node, int* tree_changed_flag);
+
+FuncReturnCode SubTreeEvalBiOperation(Node* node, NodeData left_arg, NodeData right_arg, NodeData* result);
+
+TreeSimplifyCode SubTreeSimplifyTrivialCases(Node* node, int* tree_changed_flag);
 
 #endif // BINARY_TREE_H

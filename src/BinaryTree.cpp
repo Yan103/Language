@@ -93,30 +93,6 @@ FuncReturnCode TreeNodeDtor(Node* node) {
     return SUCCESS;
 }
 
-FuncReturnCode ConnectChildWithParent(Node* node, NodeLocation location) {
-
-    if (!node) return SUCCESS;
-
-    Node* child_node = location == LEFT ? node->left : node->right;
-
-    if (!child_node) fprintf(stderr, RED("Nothing to connect, child null pointer"));
-
-    node->data  = child_node->data;
-    node->type  = child_node->type;
-
-    if (child_node == node->left)
-        TreeNodeDtor(node->right);
-    else
-        TreeNodeDtor(node->left);
-
-    node->left  = child_node->left;
-    node->right = child_node->right;
-
-    TreeNodeDtor(child_node);
-
-    return SUCCESS;
-}
-
 static size_t GetFileLength(const char* filename) {
     struct stat st = {};
     stat(filename, &st);
@@ -334,6 +310,208 @@ FuncReturnCode CopyOfNameTable(NameTable* nt_dest, const NameTable* nt_src) {
     }
 
     nt_dest->free = nt_src->free;
+
+    return SUCCESS;
+}
+
+TreeSimplifyCode TreeSimplify(Tree* tree) {
+    ASSERT(tree != NULL, "NULL POINTER WAS PASSED!\n");
+
+    return SubTreeSimplify(tree->root);
+}
+
+TreeSimplifyCode SubTreeSimplify(Node* node) {
+    if (!node) return TREE_SIMPLIFY_SUCCESS;
+
+    int tree_changed_flag = 0;
+    TreeSimplifyCode simpify_status = TREE_SIMPLIFY_SUCCESS;
+
+    do {
+        tree_changed_flag = 0;
+
+        simpify_status = SubTreeSimplifyConstants(node, &tree_changed_flag);
+        if (simpify_status != TREE_SIMPLIFY_SUCCESS) break;
+
+        simpify_status = SubTreeSimplifyTrivialCases(node, &tree_changed_flag);
+        if (simpify_status != TREE_SIMPLIFY_SUCCESS) break;
+
+    } while (tree_changed_flag);
+
+    return simpify_status;
+}
+
+TreeSimplifyCode SubTreeSimplifyConstants(Node* node, int* tree_changed_flag) {
+    ASSERT(tree_changed_flag != NULL, "NULL POINTER WAS PASSED!\n"); //TODO checks
+
+    if (!node)                  return TREE_SIMPLIFY_SUCCESS;
+    if (node->type == NUMBER)   return TREE_SIMPLIFY_SUCCESS;
+    if (node->type == VARIABLE) return TREE_SIMPLIFY_SUCCESS;
+
+    TreeSimplifyCode simpify_result = TREE_SIMPLIFY_SUCCESS;
+
+    simpify_result = SubTreeSimplifyConstants(node->left, tree_changed_flag);
+
+    simpify_result = SubTreeSimplifyConstants(node->right, tree_changed_flag);
+
+    if ((node->type == OPERATOR) && (node->data == ADD || node->data == SUB || node->data == DIV || node->data == MUL) &&
+        node->right->type == NUMBER && node->left->type == NUMBER) {
+
+        SubTreeEvalBiOperation(node, node->left->data, node->right->data, &(node->data));
+
+        node->type  = NUMBER;
+        TreeNodeDtor(node->right);
+        TreeNodeDtor(node->left);
+        node->right = NULL;
+        node->left  = NULL;
+
+        *tree_changed_flag += 1;
+
+        return TREE_SIMPLIFY_SUCCESS;
+    }
+
+    return simpify_result;
+}
+
+FuncReturnCode SubTreeEvalBiOperation(Node* node, NodeData left_arg, NodeData right_arg, NodeData* result) {
+    ASSERT(result != NULL, "NULL POINTER WAS PASSED!\n"); //TODO checks
+
+    switch ((int) node->data) {
+        case ADD:
+            *result = left_arg + right_arg;
+            break;
+        case SUB:
+            *result = left_arg - right_arg;
+            break;
+        case MUL:
+            *result = left_arg * right_arg;
+            break;
+        case DIV:
+            *result = left_arg / right_arg;
+            break;
+        default:
+            break;
+    }
+
+    return SUCCESS;
+}
+
+TreeSimplifyCode SubTreeSimplifyTrivialCases(Node* node, int* tree_changed_flag) {
+    ASSERT(tree_changed_flag != NULL, "NULL POINTER WAS PASSED!\n"); //TODO checks
+
+    if (!node)                  return TREE_SIMPLIFY_SUCCESS;
+    if (node->type == NUMBER)   return TREE_SIMPLIFY_SUCCESS;
+    if (node->type == VARIABLE) return TREE_SIMPLIFY_SUCCESS;
+
+    TreeSimplifyCode simpify_result = TREE_SIMPLIFY_SUCCESS;
+
+    if (node->left)  simpify_result = SubTreeSimplifyTrivialCases(node->left,  tree_changed_flag);
+
+    if (node->right) simpify_result = SubTreeSimplifyTrivialCases(node->right, tree_changed_flag);
+
+    if ((node->type == OPERATOR) && (node->data == ADD || node->data == SUB || node->data == DIV || node->data == MUL)) {
+        switch ((int) node->data) {
+            case ADD:
+                if (node->left->type == NUMBER && IS_ZERO(node->left->data)) {
+                    ConnectChildWithParent(node, RIGHT);
+
+                    *tree_changed_flag = 1;
+                } else if (node->right->type == NUMBER && IS_ZERO(node->right->data)) {
+                    ConnectChildWithParent(node, LEFT);
+
+                    *tree_changed_flag = 1;
+                }
+
+                break;
+
+            case SUB:
+                if (node->right->type == NUMBER && IS_ZERO(node->right->data)) {
+                    ConnectChildWithParent(node, LEFT);
+
+                    *tree_changed_flag = 1;
+                }
+
+                break;
+
+            case MUL:
+                if (node->left->type == NUMBER && IS_ONE(node->left->data)) {
+                    ConnectChildWithParent(node, RIGHT);
+
+                    *tree_changed_flag = 1;
+                } else if (node->right->type == NUMBER && IS_ONE(node->right->data)) {
+                    ConnectChildWithParent(node, LEFT);
+
+                    *tree_changed_flag = 1;
+                } else if (node->left->type == NUMBER && IS_ZERO(node->left->data)) {
+                    SubTreeToNum(node, 0);
+
+                    *tree_changed_flag = 1;
+                } else if (node->right->type == NUMBER && IS_ZERO(node->right->data)) {
+                    SubTreeToNum(node, 0);
+
+                    *tree_changed_flag = 1;
+                }
+
+                break;
+
+            case DIV:
+                if (node->left->type == NUMBER && IS_ZERO(node->left->data)) {
+                    SubTreeToNum(node, 0);
+
+                    *tree_changed_flag = 1;
+                }
+
+                break;
+
+            default:
+                break;
+            }
+    }
+
+    return simpify_result;
+}
+
+int SubTreeHaveArgs(Node* node) {
+    if (!node)                  return 0;
+    if (node->type == NUMBER)   return 0;
+    if (node->type == VARIABLE) return 1;
+
+    return SubTreeHaveArgs(node->left) + SubTreeHaveArgs(node->right);
+}
+
+FuncReturnCode SubTreeToNum(Node* node, NodeData value) {
+    ASSERT(node != NULL, "NULL POINTER WAS PASSED!\n");
+
+    node->data = value;
+    node->type = NUMBER;
+
+    SubTreeDtor(node->left);
+    SubTreeDtor(node->right);
+
+    node->left = NULL;
+    node->right = NULL;
+
+    return SUCCESS;
+}
+
+FuncReturnCode ConnectChildWithParent(Node* node, NodeLocation location) {
+    if (!node) return SUCCESS;
+
+    Node* child_node = location == LEFT ? node->left : node->right;
+
+    if (!child_node) fprintf(stderr, RED("Nothing to connect, child null pointer"));
+
+    node->data  = child_node->data;
+    node->type  = child_node->type;
+
+    if (child_node == node->left)
+        TreeNodeDtor(node->right);
+    else
+        TreeNodeDtor(node->left);
+
+    node->left  = child_node->left;
+    node->right = child_node->right;
+
+    TreeNodeDtor(child_node);
 
     return SUCCESS;
 }

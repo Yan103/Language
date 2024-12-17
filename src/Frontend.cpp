@@ -551,7 +551,6 @@ Node* GetAssign(Tokens* tokens) {
         SHIFT(tokens);
     }
 
-    Node* curr_token = tokens->lexems[ tokens->offset ];
     Node* var_name   = GetIdentificator(tokens);
 
     printf(YELLOW("%d\n"), var_declaration_flag);
@@ -610,8 +609,8 @@ Node* GetExpression(Tokens* tokens) {
         return first_result;
 
     int operator_code = tokens->lexems[ tokens->offset ]->data;
-
     SHIFT(tokens);
+
     printf("!\n");
     Node* second_result = GetPlusMinusRes(tokens);
     SYNTAX_ASSERT(second_result != NULL, "Syntax error!\n");
