@@ -39,7 +39,7 @@ const KeyWord KEYWORDS[] = {
     {"ееесссли",                 IF},
     {"сейчас_пойдёт_деградация", WHILE},
     {"получаем",                 RETURN},
-    {"так_и_запишем",            SCAN}, 
+    {"так_и_запишем",            SCAN},
     {"покажем_что",              PRINT},
 };
 
@@ -69,7 +69,7 @@ const Operator OPERATORS[] = {
     {"+",                    ADD},
     {"-",                    SUB},
     {"*",                    MUL},
-    {"/",                    DIV},
+    {":",                    DIV},
     {"<",                    LESS},
     {">",                    MORE},
     {"<=",                   LESS_EQUAL},
