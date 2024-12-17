@@ -39,7 +39,7 @@ const KeyWord KEYWORDS[] = {
     {"ееесссли",                 IF},
     {"сейчас_пойдёт_деградация", WHILE},
     {"получаем",                 RETURN},
-    {"так_и_запишем",            SCAN}, // запомним_это
+    {"так_и_запишем",            SCAN}, 
     {"покажем_что",              PRINT},
 };
 
@@ -77,7 +77,7 @@ const Operator OPERATORS[] = {
     {"==",                   EQUAL},
     {"!=",                   NOT_EQUAL},
     {"зафиксируем_эпсилон:", ASSIGN},
-    {"корень",                     SQRT},
+    {"√",                    SQRT},
 };
 
 const size_t OPERATORS_COUNT = sizeof(OPERATORS) / sizeof(OPERATORS[0]);

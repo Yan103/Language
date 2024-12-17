@@ -425,6 +425,18 @@ Node* GetSimpleStatement(Tokens* tokens) {
 
     tokens->offset = old_offset;
 
+    simple_statement = GetScan(tokens);
+    if (simple_statement) {
+
+        if (tokens->lexems[tokens->offset]->type != SEPARATOR ||
+            tokens->lexems[tokens->offset]->data != END_LINE) SYNTAX_ASSERT(0, "Syntax error!\n");
+        SHIFT(tokens); //* проверка на синтаксис + скип
+
+        return simple_statement;
+    }
+
+    tokens->offset = old_offset;
+
     simple_statement = GetReturn(tokens);
     if (simple_statement) {
         if (tokens->lexems[tokens->offset]->type != SEPARATOR ||
@@ -496,8 +508,10 @@ Node* GetWhile(Tokens* tokens) {
     Node* condition = GetExpression(tokens);
     SYNTAX_ASSERT(condition != NULL, "Syntax error!\n");
 
-    if (tokens->lexems[tokens->offset]->type == SEPARATOR &&
-        tokens->lexems[tokens->offset]->data == END_CONDITION) SYNTAX_ASSERT(0, "Syntax error!\n");
+    printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
+
+    if (tokens->lexems[tokens->offset]->type != SEPARATOR ||
+        tokens->lexems[tokens->offset]->data != END_CONDITION) SYNTAX_ASSERT(0, "Syntax error!\n");
     SHIFT(tokens); //* проверка на синтаксис + скип
 
     Node* while_statement = GetCompoundStatement(tokens);
@@ -534,6 +548,19 @@ Node* GetPrint(Tokens* tokens) {
     SYNTAX_ASSERT(print_value != NULL, "Syntax error!\n");
 
     return CreateNode(KEYWORD, PRINT, print_value, NULL);
+}
+
+Node* GetScan(Tokens* tokens) {
+    ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
+
+    if (tokens->lexems[tokens->offset]->type != KEYWORD ||
+        tokens->lexems[tokens->offset]->data != SCAN) return NULL;
+    SHIFT(tokens); //* проверка на синтаксис + скип
+
+    Node* scan_variable = GetIdentificator(tokens);
+    SYNTAX_ASSERT(scan_variable != NULL, "Syntax assert!\n");
+
+    return CreateNode(KEYWORD, SCAN, NULL, scan_variable);
 }
 
 Node* GetAssign(Tokens* tokens) {

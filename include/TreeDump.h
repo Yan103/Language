@@ -14,6 +14,7 @@
 
 #include "BinaryTree.h"
 #include "Tools.h"
+#include "LanguageSyntaxis.h"
 
 /// @brief Macro for the add new line in .dot file
 #define NEWDOTLINE(filename) fprintf(filename, "\n  ");
@@ -67,6 +68,6 @@ FuncReturnCode MakeHTMLDump(FILE* html_file, Tree* tree, int dump_id, const char
 const char* GetVarName(int index, Tree* tree);
 const char* GetKeyWordName(int index, Tree* tree);
 const char* GetSeparatorName(int index, Tree* tree);
-const char* GetOperatorName(int index, Tree* tree);
+const char* GetOperatorName(OperatorCode code);
 
 #endif // TREEDUMP_H

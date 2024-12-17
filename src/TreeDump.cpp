@@ -143,8 +143,8 @@ static void CreateColourNodeByType(FILE* filename, Node* node, Tree* tree) {
             break;
         }
         case OPERATOR: {
-            fprintf(filename, "\tnode%p[shape=Mrecord,style=\"rounded,filled\",fillcolor=\"white\","
-                                "label=\"%s\"]\n", node, GetOperatorName(node->data, tree));
+            fprintf(filename, "\tnode%p[shape=Mrecord,style=\"rounded,filled\",fillcolor=\"yellow\","
+                                "label=\"%s\"]\n", node, GetOperatorName(OperatorCode(node->data)));
             break;
         }
         default: {
@@ -234,12 +234,26 @@ const char* GetSeparatorName(int index, Tree* tree) {
     return NULL;
 }
 
-const char* GetOperatorName(int index, Tree* tree) {
-    ASSERT(tree != NULL, "NULL POINTER WAS PASSED!\n");
+const char* GetOperatorName(OperatorCode code) {
+    /// @brief Macros for case-return short form
+    #define DESCR_(code) { case code: return #code; }
+    switch (code) {
+        DESCR_(ADD);
+        DESCR_(SUB);
+        DESCR_(DIV);
+        DESCR_(MUL);
+        DESCR_(LESS);
+        DESCR_(MORE);
+        DESCR_(LESS_EQUAL);
+        DESCR_(MORE_EQUAL);
+        DESCR_(EQUAL);
+        DESCR_(NOT_EQUAL);
+        DESCR_(ASSIGN);
+        DESCR_(SQRT);
 
-    for (size_t i = 0; i < OPERATORS_COUNT; i++) {
-        if (index == OPERATORS[i].code) return OPERATORS[i].name;
+        default: return "UNKNOWN STATUS";
     }
+    #undef DESCR_
 
     return NULL;
 }
