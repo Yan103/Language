@@ -8,6 +8,12 @@
 
 #include <cstdlib>
 
+static const size_t CMDS_SIZE = 1000;
+static const size_t REGS_SIZE = 10;
+static const size_t MAXLINE   = 50;
+static const size_t FUNC_STACK_SIZE = 20;
+static const size_t RAM_SIZE = 900;
+
 #define END         "\033[0;0m"
 #define BLACK_CLR   "\033[1;30m"
 #define RED_CLR     "\033[1;31m"
