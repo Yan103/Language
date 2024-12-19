@@ -487,7 +487,7 @@ FuncReturnCode SubTreeToNum(Node* node, NodeData value) {
     SubTreeDtor(node->left);
     SubTreeDtor(node->right);
 
-    node->left = NULL;
+    node->left  = NULL;
     node->right = NULL;
 
     return SUCCESS;
@@ -515,3 +515,64 @@ FuncReturnCode ConnectChildWithParent(Node* node, NodeLocation location) {
 
     return SUCCESS;
 }
+
+/*Tree* ReadTreeFromFile(FILE* filename) {
+    ASSERT(filename != NULL, "NULL POINTER WAS PASSED!\n");
+
+    char tree_txt = (char*) calloc(MAX_TXT_TREE_SIZE + 1, sizeof(char));
+    NULL_CHECK(tree_txt);
+
+    size_t read_symbols = fread(tree_txt, MAX_TXT_TREE_SIZE, sizeof(char), filename);
+
+    Tree* tree_readed = TreeCtor();
+    int offset = 0;
+
+    tree_readed->root = ReadSubTreeFromFile((const char*) read_symbols, tree_readed, &offset);
+
+    //! nametable bro
+    FREE(tree_txt);
+
+    return tree_readed;
+}*/
+
+static void SkipSpaces(const char* string, int* offset) {
+    ASSERT(string != NULL, "NULL POINTER WAS PASSED!\n");
+    ASSERT(offset != NULL, "NULL POINTER WAS PASSED!\n");
+
+    while (isspace(string[*offset])) (*offset)++;
+}
+
+/*Node* ReadSubTreeFromFile(const char* tree_readed, const Tree* tree, int* offset) {
+    ASSERT(tree_readed = NULL, "NULL pOINTER WAS PASSED!\n");
+    ASSERT(tree        = NULL, "NULL pOINTER WAS PASSED!\n");
+    ASSERT(offset      = NULL, "NULL pOINTER WAS PASSED!\n");
+
+    SkipSpaces(tree_readed, offset);
+
+    if (tree_readed[*offset] == '*') {
+        (*offset)++;
+        return NULL;
+    }
+
+    if (tree_readed[*offset] != '{') {
+        fprintf(stderr, RED("ReadSubTree error!\n"));
+        return NULL;
+    }
+
+    Node* root = CreateNode(NUMBER, 0, NULL, NULL);
+    (*offset)++;
+
+    root->left = ReadSubTreeFromFile(tree_readed, tree, offset);
+
+    root->data = ReadNodeData(tree_readed, tree, offset);
+
+    root->right = ReadSubTreeFromFile(tree_readed, tree, offset);
+
+    while (tree_readed[*offset] != '}') (*offset)++;
+
+    (*offset)++;
+
+    return root;
+}*/
+
+//TODO ReadNodeData func

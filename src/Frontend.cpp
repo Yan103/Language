@@ -312,7 +312,7 @@ Node* GetTree(Tokens* tokens) {
 Node* GetFuncDeclarator(Tokens* tokens) {
     ASSERT(tokens    != NULL, "NULL POINTER WAS PASSED!\n");
 
-    printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
+    //!printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
 
     if (tokens->lexems[tokens->offset]->type != DECLARATOR ||
         tokens->lexems[tokens->offset]->data != FUNC_DECLARATOR) return NULL;
@@ -356,7 +356,7 @@ Node* GetFuncDeclarator(Tokens* tokens) {
 Node* GetCompoundStatement(Tokens* tokens) {
     ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
 
-    printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
+    //!printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
 
     int old_offset = tokens->offset;
 
@@ -371,7 +371,7 @@ Node* GetCompoundStatement(Tokens* tokens) {
 Node* GetBlockStatement(Tokens* tokens) {
     ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
 
-    printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
+    //!printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
 
     if (tokens->lexems[tokens->offset]->type != SEPARATOR ||
         tokens->lexems[tokens->offset]->data != BEGIN_STATEMENT_BODY) return NULL;
@@ -397,7 +397,7 @@ Node* GetBlockStatement(Tokens* tokens) {
 Node* GetSimpleStatement(Tokens* tokens) {
     ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
 
-    printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
+    //!printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
 
     int old_offset = tokens->offset;
 
@@ -466,7 +466,7 @@ Node* GetSimpleStatement(Tokens* tokens) {
 Node* GetIf(Tokens* tokens) {
     ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
 
-    printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
+    //!printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
 
     if (tokens->lexems[tokens->offset]->type != KEYWORD ||
         tokens->lexems[tokens->offset]->data != IF) return NULL;
@@ -484,10 +484,11 @@ Node* GetIf(Tokens* tokens) {
 
     Node* if_else_statement = CreateNode(KEYWORD, IF, if_statement, NULL);
 
-    if (tokens->lexems[tokens->offset]->type != KEYWORD ||
-        tokens->lexems[tokens->offset]->data != ELSE) return CreateNode(KEYWORD, IF, if_else_statement, condition);
+    if (tokens->offset >= tokens->size || (tokens->lexems[tokens->offset]->type != KEYWORD ||
+        tokens->lexems[tokens->offset]->data != ELSE)) return CreateNode(KEYWORD, IF, if_else_statement, condition);
     SHIFT(tokens);
 
+    //!printf(RED("%lu\n"), tokens->offset);
     Node* else_statement = GetCompoundStatement(tokens);
     SYNTAX_ASSERT(else_statement != NULL, "Syntax error!\n");
 
@@ -499,7 +500,7 @@ Node* GetIf(Tokens* tokens) {
 Node* GetWhile(Tokens* tokens) {
     ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
 
-    printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
+    //!printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
 
     if (tokens->offset >= tokens->size || tokens->lexems[tokens->offset]->type != KEYWORD ||
         tokens->lexems[tokens->offset]->data != WHILE) return NULL;
@@ -508,7 +509,7 @@ Node* GetWhile(Tokens* tokens) {
     Node* condition = GetExpression(tokens);
     SYNTAX_ASSERT(condition != NULL, "Syntax error!\n");
 
-    printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
+    //!printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
 
     if (tokens->lexems[tokens->offset]->type != SEPARATOR ||
         tokens->lexems[tokens->offset]->data != END_CONDITION) SYNTAX_ASSERT(0, "Syntax error!\n");
@@ -523,7 +524,7 @@ Node* GetWhile(Tokens* tokens) {
 Node* GetReturn(Tokens* tokens) {
     ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
 
-    printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
+    //!printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
 
     if (tokens->lexems[tokens->offset]->type != KEYWORD ||
         tokens->lexems[tokens->offset]->data != RETURN) return NULL;
@@ -538,7 +539,7 @@ Node* GetReturn(Tokens* tokens) {
 Node* GetPrint(Tokens* tokens) {
     ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
 
-    printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
+    //!printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
 
     if (tokens->lexems[tokens->offset]->type != KEYWORD ||
         tokens->lexems[tokens->offset]->data != PRINT) return NULL;
@@ -566,7 +567,7 @@ Node* GetScan(Tokens* tokens) {
 Node* GetAssign(Tokens* tokens) {
     ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
 
-    printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
+    //!printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
 
     int old_offset = tokens->offset;
     int var_declaration_flag = 0;
@@ -580,7 +581,7 @@ Node* GetAssign(Tokens* tokens) {
 
     Node* var_name   = GetIdentificator(tokens);
 
-    printf(YELLOW("%d\n"), var_declaration_flag);
+    //!printf(YELLOW("%d\n"), var_declaration_flag);
 
     if (var_declaration_flag) {
         SYNTAX_ASSERT(var_name != NULL, "Syntax error!\n");
@@ -617,7 +618,7 @@ Node* GetAssign(Tokens* tokens) {
 Node* GetExpression(Tokens* tokens) {
     ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
 
-    printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
+    //!printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
 
     int old_offset = tokens->offset;
 
@@ -638,7 +639,7 @@ Node* GetExpression(Tokens* tokens) {
     int operator_code = tokens->lexems[ tokens->offset ]->data;
     SHIFT(tokens);
 
-    printf("!\n");
+    //!printf("!\n");
     Node* second_result = GetPlusMinusRes(tokens);
     SYNTAX_ASSERT(second_result != NULL, "Syntax error!\n");
 
@@ -665,7 +666,7 @@ Node* GetExpression(Tokens* tokens) {
             SYNTAX_ASSERT(0, "Syntax error!\n");
             break;
     }
-    printf("!\n");
+    //!printf("!\n");
 
     return first_result;
 }
@@ -675,7 +676,7 @@ Node* GetPlusMinusRes(Tokens* tokens) {
 
     int old_offset = tokens->offset;
 
-    printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
+    //!printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
 
     Node* plusminus_res = GetMulDivRes(tokens);
     if (plusminus_res == NULL) {
@@ -716,7 +717,7 @@ Node* GetPlusMinusRes(Tokens* tokens) {
 Node* GetMulDivRes(Tokens* tokens) {
     ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
 
-    printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
+    //!printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
 
     int old_offset = tokens->offset;
 
@@ -786,19 +787,19 @@ Node* GetSqrtRes (Tokens* tokens) {
 Node* GetOperation(Tokens* tokens) {
     ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
 
-    printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
+    //!printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
 
     if (tokens->lexems[tokens->offset]->type != SEPARATOR || tokens->lexems[tokens->offset]->data != BEGIN_EXPRESSION)
         return GetSimpleCondition(tokens);
 
     SHIFT(tokens);
 
-    printf("!\n");
+    //!printf("!\n");
     Node* expression = GetExpression(tokens);
     SYNTAX_ASSERT(expression != NULL, "Syntax error!\n");
 
-    printf(RED("%lu %lu %lu\n"), tokens->offset, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type);
-    printf(GREEN("%lu %lu\n"), expression->type, expression->data);
+    //!printf(RED("%lu %lu %lu\n"), tokens->offset, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type);
+    //!printf(GREEN("%lu %lu\n"), expression->type, expression->data);
 
     if (tokens->lexems[tokens->offset]->type != SEPARATOR || tokens->lexems[tokens->offset]->data != END_EXPRESSION)
         SYNTAX_ASSERT(0, "Syntax error!\n");
@@ -810,7 +811,7 @@ Node* GetOperation(Tokens* tokens) {
 Node* GetSimpleCondition(Tokens* tokens) {
     ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
 
-    printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
+    //!printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
 
     Node* ret_val = GetFuncCall(tokens);
 
@@ -818,15 +819,13 @@ Node* GetSimpleCondition(Tokens* tokens) {
 
     if (ret_val == NULL) ret_val = GetNumber(tokens);
 
-    SYNTAX_ASSERT(ret_val != NULL, "Unknow recursion descent error!\n");
-
     return ret_val;
 }
 
 Node* GetFuncCall(Tokens* tokens) {
     ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
 
-    printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
+    //!printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
 
     int old_offset = tokens->offset;
 
@@ -834,15 +833,17 @@ Node* GetFuncCall(Tokens* tokens) {
 
     Node* variable = CreateNode(VARIABLE, tokens->lexems[ tokens->offset ]->data, NULL, NULL);
     SHIFT(tokens);
-
+    //!printf("!\n");
     if (tokens->lexems[ tokens->offset ]->type != SEPARATOR ||
-        tokens->lexems[ tokens->offset ]->data != BEGIN_FUNC_PARAMETERS) {
+        tokens->lexems[ tokens->offset ]->data != BEGIN_EXPRESSION) {
             tokens->offset = old_offset;
             TreeNodeDtor(variable);
+            //!printf("%lu %lu %lu\n", tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
             return NULL;
     }
-
+    //!printf("!\n");
     SHIFT(tokens);
+    //!printf("!\n");
 
     Node* parameters     = NULL;
     Node* new_parameter  = NULL;
@@ -852,15 +853,16 @@ Node* GetFuncCall(Tokens* tokens) {
         new_parameter = GetExpression(tokens);
 
         if (new_parameter) {
-            SYNTAX_ASSERT(new_parameter->type != VARIABLE, "WTF syntax error!\n");
+            SYNTAX_ASSERT(new_parameter->type == VARIABLE, "WTF syntax error!\n");
             parameters_count++;
 
             parameters = CreateNode(SEPARATOR, END_LINE, parameters, new_parameter);
         }
     } while (tokens->offset < tokens->size && new_parameter);
+    //!printf(GREEN("%lu\n"), tokens->offset);
 
     if (tokens->lexems[ tokens->offset ]->type != SEPARATOR ||
-        tokens->lexems[ tokens->offset ]->data != END_FUNC_PARAMETERS) SYNTAX_ASSERT(0, "Syntax error!\n");
+        tokens->lexems[ tokens->offset ]->data != END_EXPRESSION) SYNTAX_ASSERT(0, "Syntax error!\n");
 
     SHIFT(tokens);
     // TODO check for parameters count in nametable and in real!
@@ -873,10 +875,10 @@ Node* GetFuncCall(Tokens* tokens) {
 Node* GetIdentificator(Tokens* tokens) {
     ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
 
-    printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
-
+    //!printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
+    //!printf(GREEN("%lu\n"), tokens->offset);
     if (tokens->lexems[ tokens->offset ]->type != VARIABLE) return NULL;
-
+    //!printf("!!\n");
     Node* identity = CreateNode(VARIABLE, tokens->lexems[ tokens->offset ]->data, NULL, NULL);
     SHIFT(tokens);
 
@@ -897,7 +899,7 @@ Node* GetParameter(Tokens* tokens) {
 Node* GetNumber(Tokens* tokens) {
     ASSERT(tokens != NULL, "NULL POINTER WAS PASSED!\n");
 
-    printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
+    //!printf("%s %lu %lu | %lu\n", __func__, tokens->lexems[tokens->offset]->data, tokens->lexems[tokens->offset]->type, tokens->offset);
 
     if (tokens->lexems[ tokens->offset ]->type != NUMBER) return NULL;
 

@@ -15,6 +15,7 @@
 #include "Tools.h"
 #include "BinaryTree.h"
 
+const size_t MAX_TXT_TREE_SIZE = 32768;
 static const double EPS = 1e-8; /// A small value to compare numbers of the type
 
 #define NULL_CHECK(pointer)                       \
@@ -164,5 +165,9 @@ TreeSimplifyCode SubTreeSimplifyConstants(Node* node, int* tree_changed_flag);
 FuncReturnCode SubTreeEvalBiOperation(Node* node, NodeData left_arg, NodeData right_arg, NodeData* result);
 
 TreeSimplifyCode SubTreeSimplifyTrivialCases(Node* node, int* tree_changed_flag);
+
+Tree* ReadTreeFromFile(FILE* filename);
+
+Node* ReadSubTreeFromFile(const char* tree_readed, const Tree* tree, int* offset);
 
 #endif // BINARY_TREE_H
